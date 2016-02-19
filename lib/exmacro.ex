@@ -1,0 +1,2 @@
+defmodule Exmacro do
+end
