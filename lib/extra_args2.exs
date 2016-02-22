@@ -20,9 +20,9 @@ defmodule LetRec do
     {:->, ctx, [[id|args], fix_body(id, body)]}
   end
 
-  def fix_body(id, body) do
+  def fix_body({raw_id, _, _} = id, body) do
     SyntaxUtils.replace(body,
-                        {{:., c1, [id]}, c2, args},
-                        {{:., c1, [id]}, c2, [id|args]})
+                        {{:., c1, [{^raw_id, c3, z1}]}, c2, args},
+                        {{:., c1, [{raw_id, c3, z1}]}, c2, [id|args]})
   end
 end

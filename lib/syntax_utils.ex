@@ -5,43 +5,55 @@ defmodule SyntaxUtils do
   end
 
   def generate_temporaries(n, prefix \\ "t") do
-    Enum.map 1..n, fn i ->
+    Enum.take(temporaries(prefix), n)
+  end
+
+  def temporaries(prefix \\ "t") do
+    Stream.map naturals, fn i ->
       {String.to_atom(prefix <> to_string(i)), [], Elixir}
     end
   end
+  
+  defp naturals do
+    Stream.unfold(1, fn next -> {next, next+1} end)
+  end
 
   defmacro replace(expr, pat, replacement) do
-    result = quote do
-      SyntaxUtils.deep_replace unquote(expr), fn
-        (unquote(pat)) -> unquote(replacement)
-        (x) -> :__no_match__
+    quote do
+      {result, _acc} = SyntaxUtils.deep_replace unquote(expr), fn
+        (unquote(pat), acc) -> {unquote(replacement), acc}
+        (x, _acc) -> :__no_match__
+      end, nil
+      result
+    end
+  end
+
+  def deep_replace(ls, f, acc) when is_list(ls) do
+    replace_or ls, f, acc, fn acc ->
+      List.foldr ls, {[], acc}, fn x, {xs, acc} ->
+        {replacement, acc} = deep_replace(x, f, acc)
+        {[replacement|xs], acc}
       end
     end
-    result
   end
 
-  def deep_replace(ls, f) when is_list(ls) do
-    replace_or ls, f, fn ->
-      Enum.map(ls, &deep_replace(&1, f))
-    end
-  end
-
-  def deep_replace(t, f) when is_tuple(t) do
-    replace_or t, f, fn ->
-      List.to_tuple(deep_replace(Tuple.to_list(t), f))
+  def deep_replace(t, f, acc) when is_tuple(t) do
+    replace_or t, f, acc, fn acc ->
+      {replacement, acc} = deep_replace(Tuple.to_list(t), f, acc)
+      {List.to_tuple(replacement), acc}
     end
   end
   
-  def deep_replace(x, f) do
-    replace_or(x, f, fn -> x end)
+  def deep_replace(x, f, acc) do
+    replace_or(x, f, acc, fn acc -> {x, acc} end)
   end
 
-  defp replace_or(x, f, alternative) do
-    case f.(x) do
+  defp replace_or(x, f, acc, alternative) do
+    case f.(x, acc) do
       :__no_match__ ->
-        alternative.()
-      replacement ->
-        replacement
+        alternative.(acc)
+      {replacement, acc} ->
+        {replacement, acc}
     end    
   end
 
