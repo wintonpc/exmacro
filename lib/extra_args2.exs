@@ -22,7 +22,7 @@ defmodule LetRec do
 
   def fix_body({raw_id, _, _} = id, body) do
     SyntaxUtils.replace(body,
-                        {{:., c1, [{^raw_id, c3, z1}]}, c2, args},
-                        {{:., c1, [{raw_id, c3, z1}]}, c2, [id|args]})
+                        {{:., _, [{^raw_id, _, _}]}, _, args},
+                        {{:., _, [{raw_id, _, _}]}, _, [id|args]})
   end
 end
