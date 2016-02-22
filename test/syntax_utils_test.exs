@@ -14,8 +14,11 @@ defmodule SyntaxUtilsTest do
     assert replace([{:a, 1}, {:b, 2}], {:b, x}, {:b, -x}) == [{:a, 1}, {:b, -2}]
     assert replace({{:a, 1}, {:b, 2}}, {:b, x}, {:b, -x}) == {{:a, 1}, {:b, -2}}
     assert replace({{:a, 1}, {:b, 2}}, {_, _}, 42) == 42
-    # assert replace([{:a, 1}, {:b, 2}, {:c, [4]}],
-    #                [{:a, _}, {:b, _}, {:c, xs}],
-    #                [{:a, _}, {:b, _}, {:c, [3|xs]}]) == [{:a, 1}, {:b, 2}, {:c, [3, 4]}]
+  end
+
+  test "replace with underscores" do
+    assert replace([{:a, 1}, {:b, 2}, {:c, [4]}],
+                   [{:a, _}, {:b, _}, {:c, xs}],
+                   [{:a, _}, {:b, _}, {:c, [3|xs]}]) == [{:a, 1}, {:b, 2}, {:c, [3, 4]}]
   end
 end

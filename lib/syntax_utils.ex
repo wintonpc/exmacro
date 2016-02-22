@@ -10,8 +10,12 @@ defmodule SyntaxUtils do
 
   def temporaries(prefix \\ "t") do
     Stream.map naturals, fn i ->
-      {String.to_atom(prefix <> to_string(i)), [], Elixir}
+      make_temporary(prefix, i)
     end
+  end
+
+  defp make_temporary(prefix, i) do
+    {String.to_atom(prefix <> to_string(i)), [], Elixir}
   end
   
   defp naturals do
@@ -19,6 +23,8 @@ defmodule SyntaxUtils do
   end
 
   defmacro replace(expr, pat, replacement) do
+    pat = fill_underscores(pat)
+    replacement = fill_underscores(replacement)
     quote do
       {result, _acc} = SyntaxUtils.deep_replace unquote(expr), fn
         (unquote(pat), acc) -> {unquote(replacement), acc}
@@ -26,6 +32,14 @@ defmodule SyntaxUtils do
       end, nil
       result
     end
+  end
+
+  defp fill_underscores(x) do
+    {result, _acc} = deep_replace(x, fn
+      ({:_, _, _}, n) -> {make_temporary("u_", n), n+1}
+      (x, n) -> :__no_match__
+    end, 1)
+    result
   end
 
   def deep_replace(ls, f, acc) when is_list(ls) do
