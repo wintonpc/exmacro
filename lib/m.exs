@@ -77,6 +77,10 @@ end
 
 fib = y.(fib_gen)
 
+# But it's still limited to arity 1 functions.
+# Exercise: make it work for arbitrary arity recursive functions (up to, say, arity 20)
+# Hint: macros may help ;)
+
 ###########################
 
 fib_gen = fn fib ->

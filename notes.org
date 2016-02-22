@@ -1,0 +1,19 @@
+- types of metaprogramming
+  - mutate the runtime environment at runtime
+    - ruby
+      - problem: unknown code has full access to your internals and can change
+        them at any time
+      - impossible to reason about
+      - no choice but to cross fingers and hope that automated tests
+        catch the bugs
+      - in practice, bugs do slip through
+      - bugs result from runtime environment manipulation occurring
+        in the wrong order, which is related to the order in which
+        files are 'required', which is very hard to reason about, and
+        is different in development vs. production.
+  - transform the syntax tree in a separate phase before normal code
+    executes
+    - elixir, scheme, scala
+    - easy to reason about, be confident that it's correct
+    - by default, macros cannot interfere with each other or with
+      normal code
